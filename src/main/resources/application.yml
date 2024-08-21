@@ -1,0 +1,50 @@
+server:
+  port: 8763
+
+spring:
+  jpa:
+    hibernate.ddl-auto: update
+    show-sql: true
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.MySQLDialect
+  user:
+    name: user
+    password: user
+  application:
+    name: order-management
+  datasource:
+    url: jdbc:mysql://127.0.0.1:3306/restrodb?allowPublicKeyRetrieval=true&useUnicode=true&characterEncoding=UTF-8&useSSL=false&zeroDateTimeBehavior=convertToNull&allowMasterDownConnections=true
+    username: root
+    password: root
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    hikari.maximum-pool-size: 6
+
+
+  data:
+    redis:
+      host: localhost
+      port: 6379
+
+eureka:
+  client:
+    service-url:
+      defaultZone: http://localhost:8761/eureka/
+#  instance:
+#    prefer-ip-address: true
+
+server.servlet.context-path: /oms
+
+logging:
+  level:
+    org:
+      hibernate: DEBUG
+      spring:
+        jdbc: DEBUG
+
+restaurant.selection.strategy: 1   #value should be taken from RestaurantSelectionStrategyEnum
+
+
+
+
+
