@@ -21,7 +21,7 @@ public class OrderUpdateDto {
     @NotNull(message = "order id must not be null")
     private Long id;
 
-    @JsonProperty("id")
+    @JsonProperty("status")
     @NotNull(message = "status can not be null")
     private Integer status;
 

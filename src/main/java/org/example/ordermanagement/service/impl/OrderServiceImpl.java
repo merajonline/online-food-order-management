@@ -16,11 +16,14 @@ import org.example.ordermanagement.strategy.RestaurantSelectionStrategy;
 import org.example.ordermanagement.util.CustomBeanUtils;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
+import static org.example.ordermanagement.constants.GeneralConstant.decimalPrecision;
 import static org.example.ordermanagement.exception.CommonApiResultCode.INVALID_ORDER_ID;
 import static org.example.ordermanagement.exception.CommonApiResultCode.INVALID_RESTAURANT_ID;
 
@@ -98,7 +101,7 @@ public class OrderServiceImpl implements OrderService {
     public Order updateOrder(Order order) {
         Order orderFromDb =  getOrderById(order.getId());
         if (Objects.nonNull(orderFromDb)) {
-            checkAndUpdateCurrentItemProcessingCap(order, orderFromDb);
+            checkAndUpdateRestroObject(order, orderFromDb);
             CustomBeanUtils.copyNonNullProperties(order, orderFromDb);
             orderFromDb.setUpdatedDate(System.currentTimeMillis());
         } else {
@@ -107,9 +110,10 @@ public class OrderServiceImpl implements OrderService {
         return orderRepository.saveAndFlush(orderFromDb);
     }
 
-    private void checkAndUpdateCurrentItemProcessingCap(Order order, Order orderFromDb) {
-        if (order.getStatus() == OrderStatusEnum.DECLINED.getValue() &&
-                orderFromDb.getStatus() == OrderStatusEnum.CREATED.getValue()) {
+    private void checkAndUpdateRestroObject(Order order, Order orderFromDb) {
+        if (orderFromDb.getStatus() == OrderStatusEnum.CREATED.getValue() &&
+                (order.getStatus() == OrderStatusEnum.DECLINED.getValue() ||
+                        order.getStatus() == OrderStatusEnum.DISPATCHED.getValue())) {
             Restaurant restaurant = getRestaurantById(orderFromDb.getRestaurant().getId());
             if (Objects.nonNull(restaurant)) {
                 int totalDistinctItems = orderFromDb.getOrderedItems().size();
@@ -120,6 +124,7 @@ public class OrderServiceImpl implements OrderService {
             }
         }
     }
+
 
 
     private Order createOrderInstance(DishResponseDto dishResponseDto) {
@@ -182,7 +187,16 @@ public class OrderServiceImpl implements OrderService {
     private Double calculateTax(OrderBill orderBill) {
         double total = 0.0;
         total += orderBill.getItemTotal() + orderBill.getPackagingCharge() + orderBill.getDiscount() + orderBill.getPlatformFee();
-        return total * GeneralConstant.rateOfTax;
+
+        return round(total * GeneralConstant.rateOfTax, decimalPrecision);
+    }
+
+    private static double round(double value, int places) {
+        if (places < 0) throw new IllegalArgumentException();
+
+        BigDecimal bd = BigDecimal.valueOf(value);
+        bd = bd.setScale(places, RoundingMode.HALF_UP);
+        return bd.doubleValue();
     }
 
 

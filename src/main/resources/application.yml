@@ -42,7 +42,7 @@ logging:
       spring:
         jdbc: DEBUG
 
-restaurant.selection.strategy: 1   #value should be taken from RestaurantSelectionStrategyEnum
+restaurant.selection.strategy: 0   #value should be taken from RestaurantSelectionStrategyEnum
 
 
 

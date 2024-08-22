@@ -10,6 +10,7 @@ public class GeneralConstant {
     public static final int chargesPerDishPerQuantity = 2;
     public static final double rateOfTax = 0.1; // 10%
     public static final double platformFee = 5.0;
+    public static final int decimalPrecision = 2;
 
 
 }
